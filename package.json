@@ -1,0 +1,14 @@
+{
+  "name": "electron-serialport-all",
+  "version": "0.0.1",
+  "description": "serialport in electron",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gavin",
+  "license": "ISC",
+  "devDependencies": {
+    "electron-packager": "^12.1.0"
+  }
+}

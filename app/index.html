@@ -1,0 +1,26 @@
+
+    <div class="body-box">
+        <div class="tool-bar">
+            <div class="select-data">
+                <div class="form-group">
+                    <label for="serial">选择告警灯</label>
+                    <select id="serial" class="form-control com">
+                    </select>
+                </div>
+                <div class="setRow radioBox">
+                    <div class="radioItem"><b sy-val="0" class="itemset" name="light" id="light"></b>永久关闭告警灯</div>
+                    <div class="radioItem"><b sy-val="0" class="itemset" name="ring" id="ring"></b>永久关闭响铃</div>
+                </div>
+
+            </div>
+            <div class="submit-data">
+                <button id="saveSet" class="btn btn-primary btn-block btn-submit">确认</button>
+            </div>
+            <br>
+            <div id="httpCtrol" style="display: none">
+                <input type="button" sy-val = '01050001f000D80A' value="黄灯">
+                <input type="button" sy-val = '01050002f000280A' value="绿灯">
+                <input type="button" sy-val = '010500000000CDCA,0105000100009C0A,0105000200006C0A,0105000300003DCA' value="关闭所有">
+            </div>
+        </div>
+    </div>

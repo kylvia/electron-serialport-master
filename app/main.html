@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Gavin COM</title>
+    <script src="./public/js/flexible.js"></script>
+    <link rel="stylesheet" href="./public/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./public/css/login.css">
+    <link rel="stylesheet" href="./public/css/index.less">
+</head>
+
+<body id="mainBody">
+
+</body>
+<script src="./public/js/md5.js"></script>
+<script>
+    const postURl = 'https://www.pv.synpowertech.com/'
+    window.$ = window.jQuery = require('./public/js/jquery.min.js');
+    tokenId='410792247517384704';
+    var MainFunc={
+        login:function ()  {
+            var that = this;
+            let loginId = $('#loginId').val();
+            let password = $('#password').val();
+
+            if(!$.trim(loginId)){
+                alert('请输入用户名');
+                return;
+            }
+            if(!$.trim(password)){
+                alert('请输入密码');
+                return;
+            }
+
+            $.post(postURl+'/login/loginIn.do',JSON.stringify({loginId:loginId,password:hex_md5(password),requestType:"1"}),function (res) {
+                console.log(res)
+                if(parseInt(res.code) === 100) {
+                    tokenId = res.body.tokenId;
+                    $('#mainBody').load('index.html',function () {
+
+                        MainFunc.serialFunc()
+                    })
+                }else {
+                    alert(res.msg)
+                }
+            })
+
+
+
+        },
+        serialFunc:function () {
+
+            var Orders;
+            //关闭告警灯/响铃
+            $('.radioItem').unbind().on('click',function(){
+                var $this = $(this).find('b')
+                if($this.hasClass('on')){
+                    $this.removeClass('on')
+                }else {
+                    $this.addClass('on')
+                }
+            })
+//            设置串口
+            $('#serial').change(function(){
+                $.ajax({
+                    method:'post',
+                    url:postURl+'/alarm/setalarmLight.do',
+                    data:{serial:$('#serial').val()},
+                    success:function (res) {
+                        console.log(res)
+                    }
+                })
+                let COM = $('#serial').val();
+                let BaudRate = '9600';
+                if(!!port){
+                    port.close()
+                }
+                console.log(port);
+                port = new serialport(COM, {
+                    baudRate: parseInt(BaudRate)
+                });
+                $('.receive-windows').text(`打开串口: ${COM}, 波特率: ${BaudRate}`);
+                $('.receive-windows').append('<br/>=======================================<br/>');
+                init()
+            })
+            //    设置确定
+            $('#saveSet').unbind().on('click',function(){
+                var formData = {
+                    serial:$('#serial').val(),
+                    ring:$('#ring').hasClass('on') ? 1:0,
+                    light:$('#light').hasClass('on') ? 1:0,
+                    tokenId:tokenId
+                }
+                $.post(postURl+'/alarm/setalarmLight.do',{tokenId:tokenId},function(result){
+                    if(+result.code == 100){
+                        $('#ring').attr('sy-val',$('#ring').hasClass('on') ? 1:0)
+                        $('#light').attr('sy-val',$('#light').hasClass('on') ? 1:0)
+                    }else {
+                        +$('#ring').attr('sy-val')  ? $('#ring').addClass('on') : $('#ring').removeClass('on')
+                        +$('#light').attr('sy-val')  ? $('#light').addClass('on') : $('#light').removeClass('on')
+                    }
+                    alert(result.msg)
+                })
+            })
+
+
+            let serialport = require('serialport');
+            let port = null;
+//            获取串口
+            serialport.list((err, ports) => {
+                for (let item of ports) {
+                    $('.com').append(`<option value="${item.comName}">${item.comName}</option>`)
+                }
+                $('.itemset').removeClass('on')
+                getalarmLight()
+            });
+//            服务器获取默认设置
+            function getalarmLight(){
+                $.post(postURl+'/alarm/getalarmLight.do',{tokenId:tokenId},function(result){
+                    var data = result.body;
+                    console.log(data.serial)
+                    $('#serial').find("option[value='"+data.serial+"']").attr("selected",true);
+                    +data.ring && $('#ring').addClass('on') && $('#ring').attr('sy-val',data.ring);
+                    +data.light && $('#light').addClass('on') && $('#light').attr('sy-val',data.light);
+
+                    if(!port){
+                        let COM = $('#serial').val();
+                        let BaudRate = '9600';
+                        port = new serialport(COM, {
+                            baudRate: parseInt(BaudRate)
+                        });
+                        init()
+                    }
+                    getOrders()
+                })
+            }
+//            服务器获取指令
+            function getOrders(){
+                $.post(postURl+'/alarm/getAlertorOrder.do',{tokenId:tokenId},function(result){
+                    if(+result.code == 100){
+                        Orders = result.body
+                        getAlarmData()
+                    }else {
+                        alert(result.msg)
+                        return
+
+                    }
+                })
+            }
+            function init() {
+                port.open(function (err) {
+                    console.log('IsOpen:',port.isOpen)
+                })
+                port.on('data', data => {
+                    console.log(`DATA: ${data}`);
+                    $('.receive-windows').append(data.toString());
+                });
+            }
+            /*$('#httpCtrol input').on('click',function () {
+                var $this = $(this)
+                broadcast($this.attr('sy-val').split(','))
+            })*/
+            //下发指令
+            function broadcast(msg) {
+                return new Promise(function (resolve,reject) {
+                    var i = 0
+                    eachWrite(msg[i])
+                    function eachWrite(item) {
+                        console.log(item)
+                        const str = new Buffer(item,"Hex")
+                        port.write(str, function (error, result) {
+                            i++
+                            if(i>=msg.length){
+                                resolve(true)
+                                return
+                            }
+                            setTimeout(function () {
+                                eachWrite(msg[i])
+                            },40)
+                        })
+                    }
+
+                    port.on('error',function (error) {
+                        console.log('error: '+error)
+                        resolve(false)
+                    })
+                })
+            }
+//            实时请求告警数据
+            function getAlarmData() {
+                $.post(postURl+'/alarm/getAlarmData.do',{tokenId:tokenId},function(result){
+                    var data = result.body;
+                    if(+result.code !== 100) return
+//                    如果有告警
+                    let broadcasts=[]
+                    if(data.isAlarm){
+                        if(!(+$('#light').attr('sy-val'))){
+                            broadcasts.push(Orders.find(item =>item.name=='1-1').value)
+
+                        }else{
+                            broadcasts.push(Orders.find(item => item.name=='1-0').value)
+                        }
+                        if(!(+$('#ring').attr('sy-val'))){
+                            broadcasts.push(Orders.find(item =>item.name=='2-1').value)
+                        }else{
+                            broadcasts.push(Orders.find(item =>item.name=='2-0').value)
+                        }
+
+                        broadcast(broadcasts)
+                    }else {
+//                        没有告警,关闭警灯和声音
+                        broadcast([Orders[2].value],[Orders[3].value])
+                    }
+                    setTimeout(getAlarmData,5000)
+
+                })
+            }
+
+        }
+    }
+    $(function(){
+        $('#mainBody').load('login.html',function () {
+            $('#loginSubmit').unbind().on('click',MainFunc.login)
+            $('#password').unbind('keypress').keypress(function (event) {
+                var key = event.which;
+                if(key==13){
+                    $('#loginSubmit').click();
+                }
+            });
+        })
+    })
+
+</script>
+
+</html>
