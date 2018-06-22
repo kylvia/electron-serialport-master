@@ -17,7 +17,7 @@
 </body>
 <script src="./public/js/md5.js"></script>
 <script>
-    const postURl = 'https://www.dev.synpowertech.com/'
+    const postURl = 'https://www.pv.synpowertech.com/'
     window.$ = window.jQuery = require('./public/js/jquery.min.js');
     tokenId='410792247517384704';
     var MainFunc={
@@ -64,11 +64,11 @@
                 }
             })
 //            设置串口
-            $('#serial').change(function(){
+            /*$('#serial').change(function(){
                 $.ajax({
                     method:'post',
                     url:postURl+'/alarm/setalarmLight.do',
-                    data:{serial:$('#serial').val()},
+                    data:JSON.stringify({serial:$('#serial').val(),ring:$('#ring').val(),light:$('#light').val(),tokenId:tokenId}),
                     success:function (res) {
                         console.log(res)
                     }
@@ -85,7 +85,7 @@
                 $('.receive-windows').text(`打开串口: ${COM}, 波特率: ${BaudRate}`);
                 $('.receive-windows').append('<br/>=======================================<br/>');
                 init()
-            })
+            })*/
             //    设置确定
             $('#saveSet').unbind().on('click',function(){
                 var formData = {
@@ -212,7 +212,7 @@
                         broadcast(broadcasts)
                     }else {
 //                        没有告警,关闭警灯和声音
-                        broadcast([Orders[2].value],[Orders[3].value])
+                        broadcast([Orders.find(item =>item.name=='2-0').value,Orders.find(item =>item.name=='1-0').value])
                     }
                     setTimeout(getAlarmData,5000)
 
