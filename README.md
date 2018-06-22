@@ -1,5 +1,7 @@
 # 基于electron的桌面串口工具
 准备工作
+npm install -g cnpm --registry=https://registry.npm.taobao.org
+
 
 npm install --global --production windows-build-tools
 
