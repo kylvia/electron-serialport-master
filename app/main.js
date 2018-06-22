@@ -15,7 +15,7 @@ global.sharedObject = {
 }
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 450, height: 450, icon: './public/img/icon.png'})
+  mainWindow = new BrowserWindow({width: 450, height: 450, icon: './public/img/logo.ico'})
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -34,7 +34,7 @@ function createWindow () {
     // when you should delete the corresponding element.
     mainWindow = null
   })
-  //mainWindow.setMenu(null)
+  mainWindow.setMenu(null)
 }
 
 // This method will be called when Electron has finished
