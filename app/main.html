@@ -17,7 +17,7 @@
 </body>
 <script src="./public/js/md5.js"></script>
 <script>
-    const postURl = 'https://www.pv.synpowertech.com/'
+    const postURl = 'https://www.dev.synpowertech.com/'
     window.$ = window.jQuery = require('./public/js/jquery.min.js');
     tokenId='410792247517384704';
     var MainFunc={
@@ -94,7 +94,7 @@
                     light:$('#light').hasClass('on') ? 1:0,
                     tokenId:tokenId
                 }
-                $.post(postURl+'/alarm/setalarmLight.do',{tokenId:tokenId},function(result){
+                $.post(postURl+'/alarm/setalarmLight.do',JSON.stringify(formData),function(result){
                     if(+result.code == 100){
                         $('#ring').attr('sy-val',$('#ring').hasClass('on') ? 1:0)
                         $('#light').attr('sy-val',$('#light').hasClass('on') ? 1:0)
@@ -119,7 +119,7 @@
             });
 //            服务器获取默认设置
             function getalarmLight(){
-                $.post(postURl+'/alarm/getalarmLight.do',{tokenId:tokenId},function(result){
+                $.post(postURl+'/alarm/getalarmLight.do',JSON.stringify({tokenId:tokenId}),function(result){
                     var data = result.body;
                     console.log(data.serial)
                     $('#serial').find("option[value='"+data.serial+"']").attr("selected",true);
@@ -139,7 +139,7 @@
             }
 //            服务器获取指令
             function getOrders(){
-                $.post(postURl+'/alarm/getAlertorOrder.do',{tokenId:tokenId},function(result){
+                $.post(postURl+'/alarm/getAlertorOrder.do',JSON.stringify({tokenId:tokenId}),function(result){
                     if(+result.code == 100){
                         Orders = result.body
                         getAlarmData()
@@ -191,7 +191,7 @@
             }
 //            实时请求告警数据
             function getAlarmData() {
-                $.post(postURl+'/alarm/getAlarmData.do',{tokenId:tokenId},function(result){
+                $.post(postURl+'/alarm/getAlarmData.do',JSON.stringify({tokenId:tokenId}),function(result){
                     var data = result.body;
                     if(+result.code !== 100) return
 //                    如果有告警

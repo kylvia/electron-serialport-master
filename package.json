@@ -4,7 +4,8 @@
   "description": "serialport in electron",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"package": "electron-packager ./app electron-serialport --win --out electron-serialport --arch=x64 --electron--version 2.0.2 --overwrite --ignore=node_modules"
   },
   "author": "Gavin",
   "license": "ISC",
