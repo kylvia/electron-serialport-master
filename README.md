@@ -12,3 +12,7 @@ cnpm i electron -g
 cnpm install -g node-gyp
 
 cnpm install 
+
+node-gyp configure --msvs_version=2015
+
+node-gyp rebuild --target=1.6.2 --arch=x64 --target_arch=x64 --dist-url=https://atom.io/download/electron
