@@ -1,4 +1,6 @@
 # 基于electron的桌面串口工具
+具体步骤参考请移步：https://www.kylvia.top/index/detail/5b7ead04f23b8859eaaaa9cc
+
 准备工作
 npm install -g cnpm --registry=https://registry.npm.taobao.org
 
